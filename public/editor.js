@@ -7,6 +7,18 @@ let saved = '';
 let scope = {};
 let loaded = false;
 let saving = false;
+const embedded = new URLSearchParams(window.location.search).get('embedded') === '1';
+document.body.classList.toggle('embedded', embedded);
+if (embedded) {
+  document.querySelector('.hint').textContent = 'Kartı kapatmadan önce değişikliklerinizi kaydedin.';
+}
+
+function fitSection() {
+  if (!embedded || !t) return;
+  // Keep long checklists scrollable within Trello's 1500px section limit.
+  const height = Math.min(1400, Math.ceil(document.querySelector('main').getBoundingClientRect().height) + 4);
+  Promise.resolve(t.sizeTo(height)).catch(() => {});
+}
 
 function status(message, error = false) {
   $('status').textContent = message;
@@ -23,6 +35,7 @@ function refresh(changed = false) {
   $('fields').disabled = !loaded || saving;
   $('progress').textContent = `${draft.items.filter((item) => item.done).length} / ${draft.items.length}`;
   if (changed) status(dirty ? 'Kaydedilmemiş değişiklikler var.' : 'Tüm değişiklikler kaydedildi.');
+  fitSection();
 }
 
 function renderItems() {
@@ -116,4 +129,12 @@ $('editor').addEventListener('submit', async (event) => {
 window.addEventListener('beforeunload', (event) => {
   if (loaded && JSON.stringify(draft) !== saved) { event.preventDefault(); event.returnValue = ''; }
 });
+if (embedded) {
+  // Render notifications must not re-read storage over an unsaved draft.
+  try {
+    t = window.TrelloPowerUp.iframe();
+    t.render(fitSection);
+  } catch { /* load() displays the normal connection error and retry control. */ }
+  new ResizeObserver(fitSection).observe(document.querySelector('main'));
+}
 load();

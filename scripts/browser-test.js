@@ -12,6 +12,8 @@ window.testFail = false;
 window.testReadFail = false;
 window.testWrites = [];
 window.TrelloPowerUp = { iframe: () => ({
+  render: callback => callback(),
+  sizeTo: async height => { window.testSectionHeight = height; },
   getContext: () => ({ member: 'test-member', card: 'test-card' }),
   get: async (scope, visibility, key, fallback) => {
     if (window.testReadFail) throw Error('offline');
@@ -39,7 +41,7 @@ const server = createServer(async (req, res) => {
   } catch { res.writeHead(404); res.end(); }
 });
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
-const url = `http://127.0.0.1:${server.address().port}/editor.html`;
+const url = `http://127.0.0.1:${server.address().port}/editor.html?embedded=1`;
 await mkdir('artifacts', { recursive: true });
 
 async function run(name, binary) {
@@ -98,6 +100,8 @@ async function run(name, binary) {
       const tick = () => new Promise(resolve => setTimeout(resolve, 30));
       const setNote = text => { $('note').value = text; $('note').dispatchEvent(new Event('input')); };
       check($('save').disabled, 'Clean form should not save');
+      check(document.body.classList.contains('embedded'), 'Embedded layout active');
+      check(testSectionHeight > 0 && testSectionHeight <= 1400, 'Section resizes within Trello limit');
       setNote('Türkçe İğüş 😊 <img src=x onerror=alert(1)>');
       $('add').click();
       const input = $('items').querySelector('input[type=text]');

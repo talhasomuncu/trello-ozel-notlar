@@ -1,6 +1,6 @@
 # Özel Notlarım — Trello Power-Up
 
-Kart başına bir kişisel düz metin notu ve checklist. Türkçe arayüz, açık Kaydet düğmesi, kapasite göstergesi ve hata durumunda pencere içindeki taslağı koruma.
+Kartın içinde gömülü bir kişisel düz metin notu ve checklist. Türkçe arayüz, açık Kaydet düğmesi, kapasite göstergesi ve hata durumunda pencere içindeki taslağı koruma. İstenirse kart düğmesiyle ayrı pencerede de açılır.
 
 ## Çalıştırma ve paketleme
 
@@ -35,9 +35,13 @@ GitHub Pages yalnızca uygulama kodunu sunar. Not ve checklist içerikleri bu de
 2. `https://ADRESINIZ/index.html`, `editor.html`, JavaScript, CSS ve SVG dosyalarının erişilebilir olduğunu doğrulayın. JavaScript dosyalarını JavaScript MIME türüyle sunun. Hosting ayarlarında Trello iframe'lerini engelleyen `X-Frame-Options: DENY/SAMEORIGIN` veya `frame-ancestors 'self'` kullanmayın. `Content-Security-Policy` kullanılıyorsa `frame-ancestors https://trello.com` ve `script-src 'self' https://p.trellocdn.com` izinlerini sağlayın.
 3. [Trello Power-Up yönetimini](https://trello.com/apps/admin) açıp yeni bir Power-Up oluşturun. Ad: **Özel Notlarım**. Kendi çalışma alanınızı seçin; iletişim, destek e-postası ve yazar bilgilerinizi doldurun.
 4. **Iframe Connector URL** alanına `https://ADRESINIZ/index.html` yazın. Power-Up capabilities kullanılmadığını söyleyen seçeneği işaretlemeyin.
-5. **Capabilities** bölümünde yalnızca **card-buttons** özelliğini etkinleştirin.
+5. **İşlevler / Capabilities** bölümünde **card-back-section** (kart arkası bölümü) ve **card-buttons** özelliklerini etkinleştirin. Önceden kurduysanız özellikle yeni **card-back-section** özelliğini açın; yalnızca dosya güncellemesi Trello'daki bu ayarı açmaz.
 6. Hedef panoda **Power-Ups → Add Power-Ups** üzerinden kendi/özel Power-Up'ınızı ekleyin. Özel Power-Up, oluşturulurken seçilen çalışma alanının panolarına bağlıdır.
-7. Kartı açıp **Özel Notlarım** düğmesine basın. Not veya checklist ekleyin, **Kaydet** düğmesine basın ve “Kaydedildi.” mesajını bekleyin.
+7. Panoyu yenileyip normal bir kartı açın. Kartın içinde **Özel Notlarım** bölümü görünür. Not veya checklist ekleyin, **Kaydet** düğmesine basın. Eski kayıtlar aynı `personalNotes` alanından okunur; veri taşıma gerekmez. Kart düğmesi de ek bir açma yolu olarak korunur.
+
+### Yansıtılan kartlar
+
+Trello'nun yerleşik yansıma görünümünde Power-Up kullanımı desteklenmez. Kaynak kartı kendi panosunda açın ve Power-Up'ın kaynak panoda da etkin olduğundan emin olun. Bu kısıtlama gömülü bölüm eklenerek aşılamaz. Kaynak: [Trello kart yansıtma açıklaması](https://support.atlassian.com/trello/docs/mirroring-cards/).
 
 Bu sürüm ayrı API anahtarı, OAuth akışı, sunucu veya veritabanı gerektirmez. Genel Trello kataloğunda yayın içermez. HTTPS hesabı ve Trello çalışma alanı bu kaynak paketine bağlı değildir; canlı yayın henüz yapılmış sayılmaz.
 
