@@ -100,6 +100,7 @@ async function run(name, binary) {
       const tick = () => new Promise(resolve => setTimeout(resolve, 30));
       const setNote = text => { $('note').value = text; $('note').dispatchEvent(new Event('input')); };
       check($('save').disabled, 'Clean form should not save');
+      check($('export-note').disabled && $('export-checklist').disabled, 'Empty exports disabled');
       check(document.body.classList.contains('embedded'), 'Embedded layout active');
       check(testSectionHeight > 0 && testSectionHeight <= 1400, 'Section resizes within Trello limit');
       setNote('Türkçe İğüş 😊 <img src=x onerror=alert(1)>');
@@ -134,6 +135,34 @@ async function run(name, binary) {
       const finalInput = $('items').querySelector('input[type=text]');
       finalInput.value = 'Taslağı kontrol et'; finalInput.dispatchEvent(new Event('input'));
       $('save').click(); await tick();
+      const privateBeforeExport = JSON.stringify(testScope);
+      const writesBeforeExport = testWrites.length;
+      $('export-note').click();
+      check(!$('export-panel').hidden, 'Export preview opens');
+      check($('export-preview').value === $('note').value, 'Preview uses current note');
+      let clipboardText;
+      Object.defineProperty(navigator, 'clipboard', { configurable: true, value: {
+        writeText: async text => { clipboardText = text; }
+      }});
+      $('copy-export').click(); await tick();
+      check(clipboardText === $('note').value, 'Note copied');
+      check($('export-status').textContent.startsWith('Kopyalandı.'), 'Clipboard success visible');
+      $('close-export').click();
+      check($('export-panel').hidden, 'Preview closes');
+      $('export-checklist').click();
+      check($('export-preview').value === 'Taslağı kontrol et', 'Checklist exports as item text');
+      check($('export-help').textContent.includes('Tamamlanma işaretleri aktarılmaz'), 'Completion limitation visible');
+      Object.defineProperty(navigator, 'clipboard', { configurable: true, value: {
+        writeText: async () => { throw Error('denied'); }
+      }});
+      $('copy-export').click(); await tick();
+      check($('export-status').textContent.includes('Ctrl+C'), 'Manual fallback visible');
+      check($('export-preview').selectionStart === 0 &&
+        $('export-preview').selectionEnd === $('export-preview').value.length, 'Manual fallback selects text');
+      check(JSON.stringify(testScope) === privateBeforeExport && testWrites.length === writesBeforeExport,
+        'Export does not change stored private data');
+      $('close-export').click();
+      check(document.documentElement.scrollWidth <= innerWidth, 'Copy controls fit narrow card');
       return { writes: testWrites.length, status: $('status').textContent };
     })()`);
     const screenshot = await call('Page.captureScreenshot', { format: 'png' }, sessionId);

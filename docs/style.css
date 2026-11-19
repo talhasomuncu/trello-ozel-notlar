@@ -11,6 +11,14 @@ textarea, input[type="text"] { width: 100%; font: inherit; color: inherit; borde
 textarea { margin-top: 8px; resize: vertical; min-height: 100px; }
 :focus-visible { outline: 2px solid #0c66e4; outline-offset: 2px; }
 .section-heading { display: flex; justify-content: space-between; align-items: center; margin: 20px 0 10px; }
+.section-heading.note-heading { margin-top: 0; margin-bottom: 0; }
+.heading-actions { display: flex; align-items: center; gap: 10px; }
+button.copy-button { padding: 4px 7px; font-size: 12px; background: transparent; color: #0c66e4; }
+.export-panel { margin-top: 18px; padding: 12px; border: 1px solid #b7c0ce; border-radius: 7px; }
+.export-panel h2 { margin: 0 0 8px; font-size: 15px; }
+.export-panel p { font-size: 12px; line-height: 1.5; }
+.export-panel label { font-size: 12px; }
+.export-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 #progress, .hint { font-size: 12px; color: #626f86; }
 ul { list-style: none; padding: 0; margin: 0 0 10px; }
 li { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
@@ -32,6 +40,7 @@ meter { width: 100%; height: 8px; margin-top: 6px; }
   .privacy { background: #092957; color: #85b8ff; }
   textarea, input[type="text"] { background: #22272b; border-color: #596773; }
   button.secondary { background: #2c333a; color: #dee4ea; }
+  button.copy-button { color: #85b8ff; }
   #progress, .hint, .capacity-label, li.done input[type="text"] { color: #9fadbc; }
   footer { border-color: #454f59; }
   .error, #status.error, button.remove { color: #ff9c8f; }

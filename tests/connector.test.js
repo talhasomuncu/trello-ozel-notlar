@@ -23,7 +23,7 @@ test('embedded card section uses signed iframe URL and exposes no private conten
   });
   assert.equal(section.title, 'Özel Notlarım');
   assert.equal(section.content.type, 'iframe');
-  assert.equal(section.content.url, 'signed:./editor.html?embedded=1');
+  assert.equal(section.content.url, 'signed:./editor.html?embedded=1&v=20261119-copy');
   assert.equal(section.icon, 'https://example.com/trello/icon.svg');
   assert.ok(section.content.height <= 1500);
 });

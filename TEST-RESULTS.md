@@ -2,6 +2,13 @@
 
 Tarih: 18 Kasım 2026
 
+## 19 Kasım 2026 — Anahtarsız kopyalama
+
+- 10 otomatik test geçti: not metnini koruma, checklist sırası, boş madde atlama, tamamlanma durumuna dokunmama ve pano erişimi reddini ele alma dahil.
+- Chrome ve Edge'de yerel Trello taklidiyle iki düğme, içerik önizlemesi, pano API'si başarı yolu, izin reddinde metni seçerek Ctrl+C yönlendirmesi ve dar kart düzeni doğrulandı.
+- Kopyalama sırasında özel kayıtlara hiçbir ek yazma yapılmadığı doğrulandı. Gerçek işletim sistemi panosu yerine testte pano API'si taklidi kullanıldı.
+- Canlı Trello'da kullanıcının yapıştırmasıyla ortak açıklama/checklist oluşturma henüz doğrulanmadı. Bu sürüm ortak alanlara otomatik yazmaz ve API anahtarı istemez.
+
 ## Başarılı
 
 - Gömülü bölüm güncellemesi: 7 otomatik test; imzalı `card-back-section` iframe adresi, oturum kapalıyken bölüm göstermeme ve mevcut özel veri biçiminin korunması dahil.

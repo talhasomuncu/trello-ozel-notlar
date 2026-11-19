@@ -4,18 +4,21 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Özel Notlarım</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=20261119-copy">
   <script src="https://p.trellocdn.com/power-up.min.js" defer></script>
-  <script src="editor.js" type="module"></script>
+  <script src="editor.js?v=20261119-copy" type="module"></script>
 </head>
 <body>
   <main>
     <p class="privacy">Yalnızca Trello hesabınız görebilir.</p>
     <form id="editor">
       <fieldset id="fields" disabled>
-        <label for="note">NOTUM</label>
+        <div class="section-heading note-heading">
+          <label for="note">NOTUM</label>
+          <button id="export-note" type="button" class="copy-button" title="Kart açıklamasına yapıştırmak için notu kopyala" aria-label="Notu kart açıklamasına yapıştırmak için kopyala">↗ Kopyala</button>
+        </div>
         <textarea id="note" rows="5" placeholder="Bu kart hakkında kendinize bir not bırakın…"></textarea>
-        <div class="section-heading"><h1>CHECKLIST</h1><span id="progress">0 / 0</span></div>
+        <div class="section-heading"><h1>CHECKLIST</h1><div class="heading-actions"><span id="progress">0 / 0</span><button id="export-checklist" type="button" class="copy-button" title="Normal Trello checklistine yapıştırmak için maddeleri kopyala" aria-label="Checklist maddelerini normal Trello checklistine yapıştırmak için kopyala">↗ Kopyala</button></div></div>
         <ul id="items" aria-label="Checklist maddeleri"></ul>
         <button id="add" type="button" class="secondary">+ Madde ekle</button>
       </fieldset>
@@ -29,6 +32,15 @@
         <p class="hint">Kapatmadan önce kaydedin. Kaydedilmemiş değişiklikler pencere kapanınca kaybolur.</p>
       </footer>
     </form>
+    <section id="export-panel" class="export-panel" aria-labelledby="export-title" hidden>
+      <h2 id="export-title">Kopyalanacak içerik</h2>
+      <p id="export-help"></p>
+      <label for="export-preview">İçerik önizlemesi</label>
+      <textarea id="export-preview" readonly rows="5"></textarea>
+      <p class="hint">Yapıştırdığınız içerik kartı gören kişilere görünür olur. Özel kopyanız korunur.</p>
+      <div class="export-actions"><button id="copy-export" type="button">Panoya kopyala</button><button id="close-export" type="button" class="secondary">Kapat</button></div>
+      <p id="export-status" role="status" aria-live="polite"></p>
+    </section>
   </main>
 </body>
 </html>

@@ -47,6 +47,16 @@ Bu sürüm ayrı API anahtarı, OAuth akışı, sunucu veya veritabanı gerektir
 
 ## Veri ve gizlilik
 
+### Not ve checklisti ekiple paylaşmak
+
+Not ve checklist başlıklarının yanındaki **↗ Kopyala** düğmeleri API anahtarı gerektirmez. Düğme önce mevcut ekrandaki içeriğin (kaydedilmemiş düzenlemeler dahil) önizlemesini açar; **Panoya kopyala** ile metni kopyalayabilirsiniz. Tarayıcı iframe içinde otomatik kopyalamayı engellerse önizleme metni seçilir; **Ctrl+C** kullanın.
+
+- Notu, kartın normal açıklamasını düzenleyerek mevcut açıklamanın sonuna yapıştırıp Trello'da kaydedin.
+- Checklist maddelerini, normal Trello checklistinin madde ekleme alanına yapıştırın. Birden fazla satır için Trello'nun ayrı maddeler oluşturma seçeneğini kullanın. Tamamlanma işaretleri aktarılmaz; boş maddeler atlanır.
+- İçerik ancak siz Trello'nun ortak alanına yapıştırıp kaydettiğinizde kartı gören kişilere görünür olur. Düğmeler Trello'nun ortak alanlarına otomatik yazmaz; özel kayıtlar değişmez ve silinmez.
+
+### Saklama
+
 - `t.get('card', 'private', 'personalNotes')` ve `t.set('card', 'private', 'personalNotes', value)` kullanılır. JSON biçimi: `{ version: 1, note: string, items: [{ id: string, text: string, done: boolean }] }`.
 - İçerik Trello tarafından kullanıcı ve kart bazında saklanır. Aynı hesapla diğer tarayıcılardan erişilebilir. Düğmenin kendisi diğer üyelere de görünebilir; onlar kendi verilerini açarlar.
 - Kart açıklaması, yorumları, Trello'nun ortak checklistleri ve `shared` depolama kullanılmaz. Notlar yerel depolamaya, analitik sistemlerine veya uygulama loglarına yazılmaz.

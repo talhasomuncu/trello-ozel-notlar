@@ -7,7 +7,7 @@ window.TrelloPowerUp.initialize({
       icon: new URL('icon.svg', window.location.href).href,
       content: {
         type: 'iframe',
-        url: t.signUrl('./editor.html?embedded=1'),
+        url: t.signUrl('./editor.html?embedded=1&v=20261119-copy'),
         height: 560,
       },
     };
@@ -18,7 +18,7 @@ window.TrelloPowerUp.initialize({
     condition: 'signedIn',
     callback: (t) => t.popup({
       title: 'Özel Notlarım',
-      url: './editor.html',
+      url: './editor.html?v=20261119-copy',
       height: 560,
     }),
   }],
