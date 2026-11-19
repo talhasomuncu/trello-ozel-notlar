@@ -1,5 +1,16 @@
 # Doğrulama sonuçları
 
+## 19 Kasım 2026 — Otomatik kayıt ve sade bölüm
+
+- Kaydet düğmesi ve eklentiye ait Ctrl+S dinleyicisi kaldırıldı; 800 ms beklemeli otomatik kayıt eklendi. Özel Daralt/Genişlet kontrolü de kaldırıldı.
+- 21 otomatik test geçti. Seri yazma, yazarken devam eden düzenlemelerin sonraki kayda alınması, debounce, kapasite engeli, hata sonrası taslak koruma ve açık yeniden deneme sınandı.
+- Chrome ve Edge'de yerel SDK taklidiyle not/checklist/öncelik/sonraki adım otomatik kaydı, kapasite aşımında yazmama, ağ hatasında uyarı ve yeniden deneme, Ctrl+S'nin eklenti tarafından yakalanmaması ve özel daraltma kontrolünün yokluğu doğrulandı. Mevcut pano paneli, kopyalama, Enter, sıralama ve filtre kontrolleri de geçti.
+- Gerçek Trello sunucusunda otomatik kaydın canlı kontrolü ayrıca yapılmalıdır. Aşağıdaki Kaydet/Ctrl+S/daraltma testleri eski sürümlerin kayıtlarıdır.
+
+## 19 Kasım 2026 — Bölüm kontrolünün sadeleştirilmesi
+
+Eklentiye ait Daralt/Genişlet düğmesi, özet alanı ve daraltma tercihi kaldırıldı. Önceden kaydedilmiş `collapsed` görünüm tercihi artık okunmaz; editör açık kalır. Trello'nun kendi bölüm kontrolü kullanılır. Tamamlananları gizleme tercihi korunur. Güncel Chrome/Edge testleri özel daraltma düğmesinin yokluğunu, editörün görünürlüğünü ve Ctrl+S kaydını kontrol eder. Aşağıdaki daraltma testleri önceki sürüme aittir.
+
 ## 19 Kasım 2026 — Kişisel iş takibi
 
 - 17 otomatik test geçti. Eski kayıt uyumluluğu, isteğe bağlı öncelik/sonraki adım alanlarının doğrulanması ve kapasiteye katılması, sıralama, çok satırlı yapıştırma, özel kart rozeti ve pano düğmesi sınandı.

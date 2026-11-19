@@ -1,4 +1,4 @@
-const RELEASE = '20261119-workflow';
+const RELEASE = '20261119-autosave';
 const ICON = new URL('icon.svg', window.location.href).href;
 window.TrelloPowerUp.initialize({
   'card-back-section': (t) => {

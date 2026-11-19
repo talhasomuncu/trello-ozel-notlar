@@ -109,8 +109,14 @@ async function run(name, binary) {
       const $ = id => document.getElementById(id);
       const check = (value, message) => { if (!value) throw Error(message); };
       const tick = () => new Promise(resolve => setTimeout(resolve, 30));
+      const waitFor = async predicate => {
+        for (let i = 0; i < 100; i++) { if (predicate()) return; await new Promise(resolve => setTimeout(resolve, 20)); }
+        throw Error('Autosave condition timed out: ' + $('status').textContent);
+      };
+      const saved = () => waitFor(() => $('status').textContent === 'Kaydedildi.');
       const setNote = text => { $('note').value = text; $('note').dispatchEvent(new Event('input')); };
-      check($('save').disabled, 'Clean form should not save');
+      check(!$('save'), 'Manual save control removed');
+      check(testWrites.length === 0, 'Initial load does not save');
       check($('export-note').disabled && $('export-checklist').disabled, 'Empty exports disabled');
       check(document.body.classList.contains('embedded'), 'Embedded layout active');
       check(testSectionHeight > 0 && testSectionHeight <= 1400, 'Section resizes within Trello limit');
@@ -120,32 +126,35 @@ async function run(name, binary) {
       input.value = 'İlk madde'; input.dispatchEvent(new Event('input'));
       $('items').querySelector('input[type=checkbox]').click();
       check($('progress').textContent === '1 / 1', 'Checklist progress');
-      $('save').click(); await tick();
+      await saved();
       check($('status').textContent === 'Kaydedildi.', 'Save success');
       check(testScope.personalNotes.items[0].done === true, 'Done stored');
       check(!document.querySelector('img'), 'HTML must remain text');
       const persisted = JSON.stringify(testScope.personalNotes);
       setNote('x'.repeat(4096));
-      check($('save').disabled && !$('limit').hidden, 'Oversize blocked');
+      check(!$('limit').hidden, 'Oversize blocked');
+      const writesAtLimit = testWrites.length;
+      await new Promise(resolve => setTimeout(resolve, 850));
+      check(testWrites.length === writesAtLimit, 'Oversize does not write');
       setNote('Ağ hatasında korunacak taslak');
-      testFail = true; $('save').click(); await tick();
+      testFail = true; await waitFor(() => $('status').textContent.startsWith('Kaydedilemedi.'));
       check($('status').textContent.startsWith('Kaydedilemedi.'), 'Failure shown');
       check($('note').value === 'Ağ hatasında korunacak taslak', 'Draft retained');
       check(JSON.stringify(testScope.personalNotes) === persisted, 'Failed save unchanged');
-      testFail = false; $('save').click(); await tick();
+      testFail = false; $('retry-save').click(); await saved();
       check($('status').textContent === 'Kaydedildi.', 'Retry works');
       $('items').querySelector('.remove').click();
       check($('progress').textContent === '0 / 0', 'Delete item');
-      $('save').click(); await tick();
+      await saved();
       check(testScope.personalNotes.items.length === 0, 'Deletion saved');
-      setNote(''); $('save').click(); await tick();
+      setNote(''); await saved();
       check(testScope.personalNotes.note === '', 'Empty note saved');
       check(document.documentElement.scrollWidth <= innerWidth, 'No horizontal overflow');
       setNote('Toplantı öncesinde gündemi gözden geçir.');
       $('add').click();
       const finalInput = $('items').querySelector('input[type=text]');
       finalInput.value = 'Taslağı kontrol et'; finalInput.dispatchEvent(new Event('input'));
-      $('save').click(); await tick();
+      await saved();
       const privateBeforeExport = JSON.stringify(testScope);
       const writesBeforeExport = testWrites.length;
       let clipboardText;
@@ -210,16 +219,17 @@ async function run(name, binary) {
       check($('items').children[1].querySelector('input[type=text]').value === 'Ölçü kontrolü', 'Keyboard reorder works');
       $('priority').value = 'high'; $('priority').dispatchEvent(new Event('change'));
       $('next-step').value = 'Numuneyi kontrol et'; $('next-step').dispatchEvent(new Event('input'));
-      $('collapse').click();
-      check($('editor').hidden && !$('collapsed-summary').hidden, 'Section collapses');
-      check($('collapsed-summary').textContent.includes('Kaydedilmemiş'), 'Collapsed dirty warning');
-      document.dispatchEvent(new KeyboardEvent('keydown', { key: 's', ctrlKey: true, bubbles: true, cancelable: true }));
-      await tick();
-      check(testScope.personalNotes.priority === 'high' && testScope.personalNotes.nextStep === 'Numuneyi kontrol et', 'Ctrl+S saves new fields while collapsed');
+      check(!$('collapse') && !$('collapsed-summary'), 'Custom collapse controls removed');
+      check(!$('editor').hidden, 'Editor remains visible');
+      const shortcut = new KeyboardEvent('keydown', { key: 's', ctrlKey: true, bubbles: true, cancelable: true });
+      document.dispatchEvent(shortcut);
+      check(!shortcut.defaultPrevented, 'Ctrl+S is no longer intercepted');
+      check(testWrites.length === writes, 'Keyboard shortcut does not save immediately');
+      for (let i = 0; i < 100 && $('status').textContent !== 'Kaydedildi.'; i++) await new Promise(resolve => setTimeout(resolve, 20));
+      check(testScope.personalNotes.priority === 'high' && testScope.personalNotes.nextStep === 'Numuneyi kontrol et', 'New fields autosave');
       check(testScope.personalNotes.items[1].done, 'Saved order and state match');
-      check($('save').disabled, 'Ctrl+S leaves clean state');
-      $('collapse').click();
-      check(!$('editor').hidden && $('priority').value === 'high', 'Expand preserves fields');
+      check($('status').textContent === 'Kaydedildi.', 'Autosave shows saved state');
+      check(!$('editor').hidden && $('priority').value === 'high', 'Save preserves visible fields');
       check(document.documentElement.scrollWidth <= innerWidth, 'Workflow layout fits narrow card');
     })()`);
     // Use genuine browser key input so accidental HTML form submission is covered.
@@ -248,6 +258,10 @@ async function run(name, binary) {
       // Restore the saved example for the screenshot; no writes are needed.
       document.querySelectorAll('#items .remove')[2].click();
       document.querySelectorAll('#items .remove')[1].click();
+    })()`);
+    await evaluate(`(async () => {
+      for (let i = 0; i < 100 && document.getElementById('status').textContent !== 'Kaydedildi.'; i++) await new Promise(resolve => setTimeout(resolve, 20));
+      if (document.getElementById('status').textContent !== 'Kaydedildi.') throw Error('Final edits not saved');
     })()`);
     const screenshot = await call('Page.captureScreenshot', { format: 'png' }, sessionId);
     const { writeFile } = await import('node:fs/promises');

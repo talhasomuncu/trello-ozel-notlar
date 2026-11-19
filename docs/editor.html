@@ -4,14 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Özel Notlarım</title>
-  <link rel="stylesheet" href="style.css?v=20261119-workflow">
+  <link rel="stylesheet" href="style.css?v=20261119-autosave">
   <script src="https://p.trellocdn.com/power-up.min.js" defer></script>
-  <script src="editor.js?v=20261119-workflow" type="module"></script>
+  <script src="editor.js?v=20261119-autosave" type="module"></script>
 </head>
 <body>
   <main>
-    <div class="section-toolbar"><p class="privacy">Yalnızca Trello hesabınız görebilir.</p><button id="collapse" type="button" class="copy-button" aria-expanded="true" aria-controls="editor">Daralt</button></div>
-    <p id="collapsed-summary" class="hint" hidden></p>
+    <p class="privacy">Yalnızca Trello hesabınız görebilir.</p>
     <form id="editor">
       <fieldset id="fields" disabled>
         <div class="personal-fields">
@@ -34,10 +33,10 @@
         <meter id="capacity" min="0" max="4096" value="0" aria-label="Kullanılan depolama"></meter>
         <p id="limit" class="error" hidden>Depolama sınırı aşıldı. Kaydetmek için notu veya maddeleri kısaltın.</p>
         <p id="status" role="status" aria-live="polite">Yükleniyor…</p>
-        <button id="save" type="submit" disabled>Kaydet</button><span class="hint"> Ctrl+S</span>
+        <button id="retry-save" type="button" class="secondary" hidden>Kaydı yeniden dene</button>
         <button id="retry" type="button" class="secondary" hidden>Yeniden yükle</button>
         <p id="export-status" role="status" aria-live="polite"></p>
-        <p class="hint">Kapatmadan önce kaydedin. Kaydedilmemiş değişiklikler pencere kapanınca kaybolur.</p>
+        <p class="hint">Değişiklikler otomatik kaydedilir. Kartı kapatmadan önce “Kaydedildi” durumunu bekleyin.</p>
       </footer>
     </form>
   </main>

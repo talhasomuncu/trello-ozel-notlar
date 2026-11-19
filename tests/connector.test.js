@@ -23,7 +23,7 @@ test('embedded card section uses signed iframe URL and exposes no private conten
   });
   assert.equal(section.title, 'Özel Notlarım');
   assert.equal(section.content.type, 'iframe');
-  assert.equal(section.content.url, 'signed:./editor.html?embedded=1&v=20261119-workflow');
+  assert.equal(section.content.url, 'signed:./editor.html?embedded=1&v=20261119-autosave');
   assert.equal(section.icon, 'https://example.com/trello/icon.svg');
   assert.ok(section.content.height <= 1500);
 });
@@ -49,7 +49,7 @@ test('board overview button is signed-in only and opens board modal', async () =
   let options;
   await button.callback({ modal: value => { options = value; } });
   assert.equal(options.title, 'Bu panodaki özel notlarım');
-  assert.equal(options.url, './board.html?v=20261119-workflow');
+  assert.equal(options.url, './board.html?v=20261119-autosave');
 });
 test('signed-out users get no card section; existing popup remains available for signed-in users', () => {
   const handlers = capabilities();

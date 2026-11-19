@@ -1,5 +1,6 @@
-import { LIMIT, emptyNotes, readNotes, saveNotes, storageSize, moveItem, pastedLines, priorityLabel } from './model.js?v=20261119-workflow';
+import { LIMIT, emptyNotes, readNotes, saveNotes, storageSize, moveItem, pastedLines } from './model.js?v=20261119-workflow';
 import { exportText, copyText } from './export.js?v=20261119-directcopy';
+import { createAutosave } from './autosave.js?v=20261119-autosave';
 
 const $ = (id) => document.getElementById(id);
 let t;
@@ -7,27 +8,19 @@ let draft = emptyNotes();
 let saved = '';
 let scope = {};
 let loaded = false;
-let saving = false;
+let autosave;
 let hideDone = false;
-let collapsed = false;
 let prefKey = '';
 let draggedId = null;
 function rememberView() {
-  try { if (prefKey) localStorage.setItem(prefKey, JSON.stringify({ hideDone, collapsed })); } catch { /* View preferences are optional. */ }
+  try { if (prefKey) localStorage.setItem(prefKey, JSON.stringify({ hideDone })); } catch { /* View preferences are optional. */ }
 }
 function applyView() {
-  $('editor').hidden = collapsed;
-  $('collapsed-summary').hidden = !collapsed;
-  $('collapse').textContent = collapsed ? 'Genişlet' : 'Daralt';
-  $('collapse').setAttribute('aria-expanded', String(!collapsed));
   $('toggle-done').textContent = hideDone ? 'Tamamlananları göster' : 'Tamamlananları gizle';
   $('toggle-done').setAttribute('aria-pressed', String(hideDone));
 }
 const embedded = new URLSearchParams(window.location.search).get('embedded') === '1';
 document.body.classList.toggle('embedded', embedded);
-if (embedded) {
-  document.querySelector('.hint').textContent = 'Kartı kapatmadan önce değişikliklerinizi kaydedin.';
-}
 
 function fitSection() {
   if (!embedded || !t) return;
@@ -43,17 +36,14 @@ function status(message, error = false) {
 
 function refresh(changed = false) {
   const size = storageSize(draft, scope);
-  const dirty = JSON.stringify(draft) !== saved;
   $('usage').textContent = `${size} / ${LIMIT}`;
   $('capacity').value = Math.min(size, LIMIT);
   $('limit').hidden = size <= LIMIT;
-  $('save').disabled = !loaded || saving || !dirty || size > LIMIT;
-  $('fields').disabled = !loaded || saving;
-  $('export-note').disabled = !loaded || saving || !draft.note.trim();
-  $('export-checklist').disabled = !loaded || saving || !exportText(draft, 'checklist');
+  $('fields').disabled = !loaded;
+  $('export-note').disabled = !loaded || !draft.note.trim();
+  $('export-checklist').disabled = !loaded || !exportText(draft, 'checklist');
   $('progress').textContent = `${draft.items.filter((item) => item.done).length} / ${draft.items.length}`;
-  $('collapsed-summary').textContent = `${priorityLabel(draft.priority)} öncelik · ${draft.items.filter(item => !item.done && item.text.trim()).length} açık madde${dirty ? ' · Kaydedilmemiş değişiklikler var' : ''}`;
-  if (changed) status(dirty ? 'Kaydedilmemiş değişiklikler var.' : 'Tüm değişiklikler kaydedildi.');
+  if (changed) autosave?.changed();
   fitSection();
 }
 
@@ -69,7 +59,6 @@ function renderItems() {
     handle.textContent = '⠿'; handle.title = 'Sürükleyerek veya Alt+↑/↓ ile sırala';
     handle.setAttribute('aria-label', 'Maddeyi sırala: sürükle veya Alt ve ok tuşları');
     handle.addEventListener('dragstart', event => {
-      if (saving) { event.preventDefault(); return; }
       draggedId = item.id;
       event.dataTransfer.effectAllowed = 'move';
       event.dataTransfer.setData('text/plain', item.id);
@@ -79,12 +68,12 @@ function renderItems() {
       document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
     });
     row.addEventListener('dragover', event => {
-      if (!draggedId || saving) return;
+      if (!draggedId) return;
       event.preventDefault(); event.dataTransfer.dropEffect = 'move'; row.classList.add('drag-over');
     });
     row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
     row.addEventListener('drop', event => {
-      if (!draggedId || saving) return;
+      if (!draggedId) return;
       event.preventDefault();
       const bounds = row.getBoundingClientRect();
       const source = draggedId; draggedId = null;
@@ -175,7 +164,7 @@ async function load() {
     prefKey = `private-notes-view:${context.member}:${context.card}`;
     try {
       const prefs = JSON.parse(localStorage.getItem(prefKey) || '{}');
-      hideDone = prefs.hideDone === true; collapsed = prefs.collapsed === true;
+      hideDone = prefs.hideDone === true;
     } catch { /* Defaults work when local storage is unavailable. */ }
     draft = await readNotes(t);
     scope = (await t.get('card', 'private')) || {};
@@ -186,6 +175,27 @@ async function load() {
     applyView();
     renderItems();
     loaded = true;
+    autosave?.cancel();
+    autosave = createAutosave({
+      initial: draft,
+      getValue: () => draft,
+      write: snapshot => saveNotes(t, snapshot),
+      canSave: value => storageSize(value, scope) <= LIMIT,
+      onState: (state, error) => {
+        saved = autosave.savedJSON;
+        $('retry-save').hidden = state !== 'error';
+        status({
+          pending: 'Değişiklikler otomatik kaydedilecek…',
+          saving: 'Kaydediliyor…',
+          saved: 'Kaydedildi.',
+          blocked: 'Depolama sınırı aşıldı. İçeriği kısaltın; ardından otomatik kaydedilecek.',
+          error: error?.message === 'CAPACITY_EXCEEDED'
+            ? 'Depolama sınırı nedeniyle kaydedilemedi. İçeriği kısaltın.'
+            : 'Kaydedilemedi. Taslağınız bu pencerede duruyor; yeniden deneyebilirsiniz.',
+        }[state], state === 'error' || state === 'blocked');
+        refresh();
+      },
+    });
     status('Notlarınız hazır.');
   } catch (error) {
     status(error.message === 'UNSUPPORTED_DATA'
@@ -211,9 +221,6 @@ $('next-step').addEventListener('keydown', event => { if (event.key === 'Enter')
 $('toggle-done').addEventListener('click', () => {
   hideDone = !hideDone; rememberView(); applyView(); renderItems(); fitSection();
 });
-$('collapse').addEventListener('click', () => {
-  collapsed = !collapsed; rememberView(); applyView(); refresh();
-});
 $('add').addEventListener('click', () => {
   draft.items.push({ id: crypto.randomUUID(), text: '', done: false });
   renderItems();
@@ -223,7 +230,7 @@ $('add').addEventListener('click', () => {
 $('retry').addEventListener('click', load);
 async function copyExport(kind) {
   const text = exportText(draft, kind);
-  if (!loaded || saving || !text.trim()) return;
+  if (!loaded || !text.trim()) return;
   const copied = await copyText(text);
   $('export-status').textContent = copied
     ? (kind === 'note'
@@ -235,31 +242,9 @@ async function copyExport(kind) {
 }
 $('export-note').addEventListener('click', () => copyExport('note'));
 $('export-checklist').addEventListener('click', () => copyExport('checklist'));
-async function saveDraft() {
-  if ($('save').disabled) return;
-  saving = true;
-  refresh();
-  status('Kaydediliyor…');
-  try {
-    await saveNotes(t, draft);
-    saved = JSON.stringify(draft);
-    status('Kaydedildi.');
-  } catch (error) {
-    status(error.message === 'CAPACITY_EXCEEDED'
-      ? 'Depolama sınırı aşıldı. İçeriği kısaltıp yeniden kaydedin.'
-      : 'Kaydedilemedi. Taslağınız bu pencerede duruyor; Kaydet ile yeniden deneyin.', true);
-  } finally {
-    saving = false;
-    refresh();
-  }
-}
-$('editor').addEventListener('submit', event => { event.preventDefault(); saveDraft(); });
-document.addEventListener('keydown', event => {
-  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
-    event.preventDefault();
-    if (!event.repeat) saveDraft();
-  }
-});
+$('editor').addEventListener('submit', event => event.preventDefault());
+$('retry-save').addEventListener('click', () => autosave?.flush());
+window.addEventListener('online', () => autosave?.changed());
 
 // A Trello popup can close without a browser unload confirmation; the UI warns explicitly.
 window.addEventListener('beforeunload', (event) => {

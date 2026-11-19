@@ -1,6 +1,6 @@
 # Özel Notlarım — Trello Power-Up
 
-Kartın içinde gömülü bir kişisel düz metin notu ve checklist. Türkçe arayüz, açık Kaydet düğmesi, kapasite göstergesi ve hata durumunda pencere içindeki taslağı koruma. İstenirse kart düğmesiyle ayrı pencerede de açılır.
+Kartın içinde gömülü bir kişisel düz metin notu ve checklist. Türkçe arayüz, otomatik kayıt, kapasite göstergesi ve hata durumunda pencere içindeki taslağı koruma. İstenirse kart düğmesiyle ayrı pencerede de açılır.
 
 ## Çalıştırma ve paketleme
 
@@ -37,7 +37,7 @@ GitHub Pages yalnızca uygulama kodunu sunar. Not ve checklist içerikleri bu de
 4. **Iframe Connector URL** alanına `https://ADRESINIZ/index.html` yazın. Power-Up capabilities kullanılmadığını söyleyen seçeneği işaretlemeyin.
 5. **İşlevler / Capabilities** bölümünde **card-back-section** (Kart Arka Bölümü), **card-buttons** (Kart Düğmeleri), **card-badges** (Kart Rozetleri) ve **board-buttons** (Pano Düğmeleri) özelliklerini etkinleştirin. Önceden kurduysanız özellikle yeni **card-badges** ve **board-buttons** özelliklerini açın; yalnızca dosya güncellemesi Trello'daki bu ayarları açmaz.
 6. Hedef panoda **Power-Ups → Add Power-Ups** üzerinden kendi/özel Power-Up'ınızı ekleyin. Özel Power-Up, oluşturulurken seçilen çalışma alanının panolarına bağlıdır.
-7. Panoyu yenileyip normal bir kartı açın. Kartın içinde **Özel Notlarım** bölümü görünür. Not veya checklist ekleyin, **Kaydet** düğmesine basın. Eski kayıtlar aynı `personalNotes` alanından okunur; veri taşıma gerekmez. Kart düğmesi de ek bir açma yolu olarak korunur.
+7. Panoyu yenileyip normal bir kartı açın. Kartın içinde **Özel Notlarım** bölümü görünür. Not veya checklist ekleyip **Kaydedildi** durumunu bekleyin. Eski kayıtlar aynı `personalNotes` alanından okunur; veri taşıma gerekmez. Kart düğmesi de ek bir açma yolu olarak korunur.
 
 ### Yansıtılan kartlar
 
@@ -50,9 +50,9 @@ Bu sürüm ayrı API anahtarı, OAuth akışı, sunucu veya veritabanı gerektir
 ### Kişisel iş takibi
 
 - **Tamamlananları gizle/göster:** Tamamlanan maddeler silinmez; sayaç tüm maddeleri sayar. Kopyalama gizli tamamlanan maddeleri de içerir.
-- **Sıralama:** Madde başındaki tutamacı sürükleyin. Klavyeyle madde veya tutamaç odaktayken **Alt+↑/↓** kullanın. Yeni sıra **Kaydet** ile saklanır.
-- **Ctrl+S:** Özel not alanının içinde odak varken kaydeder; düğmeyle aynı kapasite/hata kontrollerini uygular. Bölüm daraltılmışken de iframe odağı içindeyse çalışır. Tekrarlanan tuş basımları eşzamanlı kayıt başlatmaz.
-- **Daralt/Genişlet:** İçerik kaybolmaz; dar görünümde açık iş sayısı, öncelik ve kaydedilmemiş değişiklik uyarısı kalır. Daraltma ve tamamlananları gizleme tercihleri yalnızca bu tarayıcıda, Trello hesabı ve kart bazında hatırlanır. Yerel depolama engelliyse varsayılan görünüm kullanılır. Not içeriği yerel depolamaya yazılmaz.
+- **Sıralama:** Madde başındaki tutamacı sürükleyin. Klavyeyle madde veya tutamaç odaktayken **Alt+↑/↓** kullanın. Yeni sıra otomatik saklanır.
+- **Otomatik kayıt:** Son değişiklikten 800 ms sonra kaydeder. Kaydet düğmesi ve Ctrl+S kısayolu kaldırılmıştır. İlk açılışta mevcut kayda yazılmaz. Yazma devam ederken düzenleme yapılabilir; o sırada yapılan yeni değişiklikler sıradaki kayıtta gönderilir. Aynı anda iki yazma yapılmaz. Başarı yalnızca gönderilmiş veri için gösterilir. Hata durumunda taslak bellekte kalır; **Kaydı yeniden dene**, yeni bir düzenleme veya bağlantının geri gelmesi kaydı yeniden başlatabilir. Sürekli otomatik hata döngüsü yapılmaz. Kartı kapatmadan önce **Kaydedildi** durumunu bekleyin.
+- Bölüm görünürlüğü için Trello'nun kendi bölüm kontrolü kullanılır. Eklenti içinde ayrı Daralt/Genişlet düğmesi yoktur. Tamamlananları gizleme tercihi bu tarayıcıda, Trello hesabı ve kart bazında hatırlanır. Yerel depolama engelliyse varsayılan görünüm kullanılır. Not içeriği yerel depolamaya yazılmaz.
 - **Çok satır yapıştırma:** Bir checklist maddesine birden fazla satır yapıştırıldığında boş satırlar atlanır, satırlar ayrı maddelere dönüştürülür. Mevcut maddedeki seçili metin değiştirilir; seçim öncesi/sonrası metin korunur. İlk maddenin tamamlanma durumu korunur, yeni maddeler tamamlanmamış başlar.
 - **Kişisel öncelik ve sonraki adım:** Yalnızca sizin kaydınızda saklanır. Kartın ortak önceliğini veya açıklamasını değiştirmez. Varsayılan öncelik Normal'dir; varsayılan alanlar ek yer kaplamaz.
 - **Özel notum var rozeti:** Kartın ön yüzünde yalnızca görüntüleyen hesabın özel kaydı varsa görünür. Not metni, sonraki adım ve öncelik değeri rozet metnine yazılmaz. Taslak yerine son kaydedilen veri kullanılır.
@@ -64,7 +64,7 @@ Yeni pano özelliklerini kullanabilmek için Trello uygulama yönetimindeki **Ka
 
 Not ve checklist başlıklarının yanındaki **↗ Kopyala** düğmeleri API anahtarı gerektirmez. Tek tıkla mevcut ekrandaki içerik (kaydedilmemiş düzenlemeler dahil) doğrudan panoya kopyalanır; önizleme açılmaz. Tarayıcı modern pano erişimini engellerse geçici, görünmeyen bir metin alanıyla seçim kopyalama denenir. İki yöntem de başarısızsa başarı mesajı yerine hata gösterilir.
 
-Checklist maddesine metin yazdıktan sonra **Enter**, hemen altına yeni bir boş madde ekler ve odağı oraya taşır. Boş maddede Enter yeni boş satır üretmez; Enter hiçbir zaman formu kaydetmez. Değişiklikler için **Kaydet** kullanın.
+Checklist maddesine metin yazdıktan sonra **Enter**, hemen altına yeni bir boş madde ekler ve odağı oraya taşır. Boş maddede Enter yeni boş satır üretmez. Enter formu göndermez; değişiklikler normal otomatik kayıt akışına dahil olur.
 
 - Notu, kartın normal açıklamasını düzenleyerek mevcut açıklamanın sonuna yapıştırıp Trello'da kaydedin.
 - Checklist maddelerini, normal Trello checklistinin madde ekleme alanına yapıştırın. Birden fazla satır için Trello'nun ayrı maddeler oluşturma seçeneğini kullanın. Tamamlanma işaretleri aktarılmaz; boş maddeler atlanır.
@@ -77,7 +77,7 @@ Checklist maddesine metin yazdıktan sonra **Enter**, hemen altına yeni bir bo�
 - Kart açıklaması, yorumları, Trello'nun ortak checklistleri ve `shared` depolama kullanılmaz. Notlar yerel depolamaya, analitik sistemlerine veya uygulama loglarına yazılmaz. Yalnızca görünüm tercihleri yerel depolamada tutulabilir.
 - Bu, Trello kullanıcıları arasında erişim ayrımıdır; uçtan uca şifreleme değildir.
 - 4096 karakter sınırı bütün JSON nesnesi, alan adları, checklist kimlikleri ve varsa aynı Power-Up'ın diğer özel anahtarları dahil hesaplanır. Metin alanında 4096 karakter yazılabileceği anlamına gelmez. Kaydetmeden önce alan yeniden okunup sınır kontrol edilir; Trello'nun sunucu reddi de hata olarak ele alınır.
-- Kaydetme sırasında düzenleme kilitlenir. Ağ hatasında taslak yalnızca açık pencerenin belleğinde kalır. Popup kapatıldığında taslak kaybolabilir; kapanış onayı Trello iframe'lerinde garanti edilmez.
+- Ağ hatasında veya otomatik kayıt tamamlanmadan önce taslak yalnızca açık pencerenin belleğinde kalır. Popup kapatıldığında kaydedilmemiş taslak kaybolabilir; kapanış onayı Trello iframe'lerinde garanti edilmez. **Kaydedildi** durumunu bekleyin.
 - Aynı hesap aynı kartı birden fazla pencerede düzenlerse son başarılı kayıt geçerlidir. Ortak düzenleme ve çatışma birleştirme yoktur.
 - Desteklenmeyen kayıt sürümü veya bozuk veri açıldığında düzenleme engellenir; mevcut içerik üzerine yazılmaz.
 
@@ -85,13 +85,13 @@ Checklist maddesine metin yazdıktan sonra **Enter**, hemen altına yeni bir bo�
 
 Yerel testler Trello'nun gerçek yetkilendirmesini kanıtlamaz. Yayından sonra aşağıdaki senaryoları Chrome ve Edge'de doğrulayın:
 
-1. Not ve iki madde oluşturun; maddeyi düzenleyin, tamamlayın, diğerini silin ve kaydedin. Kartı kapatıp yeniden açınca son halin geldiğini kontrol edin.
+1. Not ve iki madde oluşturun; maddeyi düzenleyin, tamamlayın, diğerini silin ve **Kaydedildi** durumunu bekleyin. Kartı kapatıp yeniden açınca son halin geldiğini kontrol edin.
 2. Aynı Trello hesabıyla diğer tarayıcıda aynı kartı açın; kayıtlı verinin geldiğini kontrol edin. Başka kartın boş açıldığını doğrulayın.
 3. Aynı panoya erişen ikinci, farklı Trello hesabında ilk kullanıcının notlarının ve checklistlerinin görünmediğini doğrulayın. İkinci hesabın kendi kaydının ilk hesabı etkilemediğini kontrol edin.
 4. Türkçe karakterler, emoji ve `<img src=x onerror=alert(1)>` gibi metinlerin aynen metin kaldığını kontrol edin.
-5. Sınırı aşın: sayaç uyarı vermeli, Kaydet devre dışı kalmalı, içerik kesilmemelidir. Metni kısaltıp yeniden kaydedin.
-6. Pencere yüklendikten sonra tarayıcı geliştirici araçlarıyla ağı çevrimdışı yapın; kaydın başarısız olduğunu ve taslağın kaldığını kontrol edin. Bağlantıyı açıp yeniden kaydedin.
-7. Not ve maddeleri temizleyip kaydedin; yeniden açıldığında boş olduğunu doğrulayın.
+5. Sınırı aşın: sayaç uyarı vermeli, otomatik kayıt durmalı, içerik kesilmemelidir. Metni kısaltınca otomatik kayıt devam etmelidir.
+6. Pencere yüklendikten sonra tarayıcı geliştirici araçlarıyla ağı çevrimdışı yapın; kaydın başarısız olduğunu ve taslağın kaldığını kontrol edin. Bağlantıyı açıp **Kaydı yeniden dene** kullanın.
+7. Not ve maddeleri temizleyin; **Kaydedildi** sonrasında yeniden açıldığında boş olduğunu doğrulayın.
 
 ## Resmi referanslar
 
