@@ -7,7 +7,7 @@ Kartın içinde gömülü bir kişisel düz metin notu ve checklist. Türkçe ar
 Node.js 24 ile, bağımlılık kurulumu olmadan:
 
 ```powershell
-node --test tests/model.test.js
+node --test tests/*.test.js
 node scripts/build.js
 node scripts/browser-test.js
 Compress-Archive -Path dist/* -DestinationPath ozel-notlarim-powerup.zip -Force
@@ -35,7 +35,7 @@ GitHub Pages yalnızca uygulama kodunu sunar. Not ve checklist içerikleri bu de
 2. `https://ADRESINIZ/index.html`, `editor.html`, JavaScript, CSS ve SVG dosyalarının erişilebilir olduğunu doğrulayın. JavaScript dosyalarını JavaScript MIME türüyle sunun. Hosting ayarlarında Trello iframe'lerini engelleyen `X-Frame-Options: DENY/SAMEORIGIN` veya `frame-ancestors 'self'` kullanmayın. `Content-Security-Policy` kullanılıyorsa `frame-ancestors https://trello.com` ve `script-src 'self' https://p.trellocdn.com` izinlerini sağlayın.
 3. [Trello Power-Up yönetimini](https://trello.com/apps/admin) açıp yeni bir Power-Up oluşturun. Ad: **Özel Notlarım**. Kendi çalışma alanınızı seçin; iletişim, destek e-postası ve yazar bilgilerinizi doldurun.
 4. **Iframe Connector URL** alanına `https://ADRESINIZ/index.html` yazın. Power-Up capabilities kullanılmadığını söyleyen seçeneği işaretlemeyin.
-5. **İşlevler / Capabilities** bölümünde **card-back-section** (kart arkası bölümü) ve **card-buttons** özelliklerini etkinleştirin. Önceden kurduysanız özellikle yeni **card-back-section** özelliğini açın; yalnızca dosya güncellemesi Trello'daki bu ayarı açmaz.
+5. **İşlevler / Capabilities** bölümünde **card-back-section** (Kart Arka Bölümü), **card-buttons** (Kart Düğmeleri), **card-badges** (Kart Rozetleri) ve **board-buttons** (Pano Düğmeleri) özelliklerini etkinleştirin. Önceden kurduysanız özellikle yeni **card-badges** ve **board-buttons** özelliklerini açın; yalnızca dosya güncellemesi Trello'daki bu ayarları açmaz.
 6. Hedef panoda **Power-Ups → Add Power-Ups** üzerinden kendi/özel Power-Up'ınızı ekleyin. Özel Power-Up, oluşturulurken seçilen çalışma alanının panolarına bağlıdır.
 7. Panoyu yenileyip normal bir kartı açın. Kartın içinde **Özel Notlarım** bölümü görünür. Not veya checklist ekleyin, **Kaydet** düğmesine basın. Eski kayıtlar aynı `personalNotes` alanından okunur; veri taşıma gerekmez. Kart düğmesi de ek bir açma yolu olarak korunur.
 
@@ -46,6 +46,19 @@ Trello'nun yerleşik yansıma görünümünde Power-Up kullanımı desteklenmez.
 Bu sürüm ayrı API anahtarı, OAuth akışı, sunucu veya veritabanı gerektirmez. Genel Trello kataloğunda yayın içermez. HTTPS hesabı ve Trello çalışma alanı bu kaynak paketine bağlı değildir; canlı yayın henüz yapılmış sayılmaz.
 
 ## Veri ve gizlilik
+
+### Kişisel iş takibi
+
+- **Tamamlananları gizle/göster:** Tamamlanan maddeler silinmez; sayaç tüm maddeleri sayar. Kopyalama gizli tamamlanan maddeleri de içerir.
+- **Sıralama:** Madde başındaki tutamacı sürükleyin. Klavyeyle madde veya tutamaç odaktayken **Alt+↑/↓** kullanın. Yeni sıra **Kaydet** ile saklanır.
+- **Ctrl+S:** Özel not alanının içinde odak varken kaydeder; düğmeyle aynı kapasite/hata kontrollerini uygular. Bölüm daraltılmışken de iframe odağı içindeyse çalışır. Tekrarlanan tuş basımları eşzamanlı kayıt başlatmaz.
+- **Daralt/Genişlet:** İçerik kaybolmaz; dar görünümde açık iş sayısı, öncelik ve kaydedilmemiş değişiklik uyarısı kalır. Daraltma ve tamamlananları gizleme tercihleri yalnızca bu tarayıcıda, Trello hesabı ve kart bazında hatırlanır. Yerel depolama engelliyse varsayılan görünüm kullanılır. Not içeriği yerel depolamaya yazılmaz.
+- **Çok satır yapıştırma:** Bir checklist maddesine birden fazla satır yapıştırıldığında boş satırlar atlanır, satırlar ayrı maddelere dönüştürülür. Mevcut maddedeki seçili metin değiştirilir; seçim öncesi/sonrası metin korunur. İlk maddenin tamamlanma durumu korunur, yeni maddeler tamamlanmamış başlar.
+- **Kişisel öncelik ve sonraki adım:** Yalnızca sizin kaydınızda saklanır. Kartın ortak önceliğini veya açıklamasını değiştirmez. Varsayılan öncelik Normal'dir; varsayılan alanlar ek yer kaplamaz.
+- **Özel notum var rozeti:** Kartın ön yüzünde yalnızca görüntüleyen hesabın özel kaydı varsa görünür. Not metni, sonraki adım ve öncelik değeri rozet metnine yazılmaz. Taslak yerine son kaydedilen veri kullanılır.
+- **Pano paneli:** Panonun Power-Up düğmelerinden **Özel Notlarım** ile açılır. Açık panonun açık listelerindeki arşivlenmemiş kartlarda yalnızca sizin kayıtlarınızı okur. Kart adı, not, sonraki adım ve maddelerde arama ile açık iş filtresi vardır. Kart adından karta gidilebilir. **Yenile** son kayıtları tekrar okur. Kayıt okumaları dörderli yürütülür; hatalı/okunamayan kartlar sayılarak uyarılır. Arşivli ve kaynak panosu farklı yansıtılmış kart kayıtları kapsam dışıdır.
+
+Yeni pano özelliklerini kullanabilmek için Trello uygulama yönetimindeki **Kart Rozetleri / card-badges** ve **Pano Düğmeleri / board-buttons** işlevlerini açın. Pano düğmesi gizliyse panodaki Power-Up menüsünden görünür yapın. Güncellemeden sonra **Ctrl+Shift+R** ile yenileyin.
 
 ### Not ve checklisti ekiple paylaşmak
 
@@ -59,9 +72,9 @@ Checklist maddesine metin yazdıktan sonra **Enter**, hemen altına yeni bir bo�
 
 ### Saklama
 
-- `t.get('card', 'private', 'personalNotes')` ve `t.set('card', 'private', 'personalNotes', value)` kullanılır. JSON biçimi: `{ version: 1, note: string, items: [{ id: string, text: string, done: boolean }] }`.
+- `t.get('card', 'private', 'personalNotes')` ve `t.set('card', 'private', 'personalNotes', value)` kullanılır. JSON biçimi: `{ version: 1, note: string, items: [{ id: string, text: string, done: boolean }], priority?: 'low'|'normal'|'high', nextStep?: string }`. Eski kayıtlar taşınmadan açılır; alanlar isteğe bağlıdır. Pano panelinde kart kimliğiyle aynı `private` alana okuma yapılır.
 - İçerik Trello tarafından kullanıcı ve kart bazında saklanır. Aynı hesapla diğer tarayıcılardan erişilebilir. Düğmenin kendisi diğer üyelere de görünebilir; onlar kendi verilerini açarlar.
-- Kart açıklaması, yorumları, Trello'nun ortak checklistleri ve `shared` depolama kullanılmaz. Notlar yerel depolamaya, analitik sistemlerine veya uygulama loglarına yazılmaz.
+- Kart açıklaması, yorumları, Trello'nun ortak checklistleri ve `shared` depolama kullanılmaz. Notlar yerel depolamaya, analitik sistemlerine veya uygulama loglarına yazılmaz. Yalnızca görünüm tercihleri yerel depolamada tutulabilir.
 - Bu, Trello kullanıcıları arasında erişim ayrımıdır; uçtan uca şifreleme değildir.
 - 4096 karakter sınırı bütün JSON nesnesi, alan adları, checklist kimlikleri ve varsa aynı Power-Up'ın diğer özel anahtarları dahil hesaplanır. Metin alanında 4096 karakter yazılabileceği anlamına gelmez. Kaydetmeden önce alan yeniden okunup sınır kontrol edilir; Trello'nun sunucu reddi de hata olarak ele alınır.
 - Kaydetme sırasında düzenleme kilitlenir. Ağ hatasında taslak yalnızca açık pencerenin belleğinde kalır. Popup kapatıldığında taslak kaybolabilir; kapanış onayı Trello iframe'lerinde garanti edilmez.

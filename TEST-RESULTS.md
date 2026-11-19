@@ -1,5 +1,13 @@
 # Doğrulama sonuçları
 
+## 19 Kasım 2026 — Kişisel iş takibi
+
+- 17 otomatik test geçti. Eski kayıt uyumluluğu, isteğe bağlı öncelik/sonraki adım alanlarının doğrulanması ve kapasiteye katılması, sıralama, çok satırlı yapıştırma, özel kart rozeti ve pano düğmesi sınandı.
+- Pano toplamada sadece `private` okumalar, en fazla dört eşzamanlı istek, sonuç sırası, kısmi okuma hataları ve Türkçe arama/açık iş filtreleri test edildi.
+- Chrome ve Edge'de yerel Trello taklidiyle tamamlananları gizle/göster, sürükle olaylarıyla sıralama, Alt+ok sıralama, çok satır yapıştırma, yeni alanlar, bölüm daraltma, daraltılmış bölümde Ctrl+S, gerçek Enter girdileri ve kayıt/kapasite/kopyalama regresyonları geçti.
+- Pano paneli tarayıcı testlerinde içerik güvenli metin olarak gösterildi; filtreleme, kart açma köprüsü, kısmi ve tüm kart okumalarının başarısızlığı ve yeniden yükleme sınandı. Pano panelinde yazma yapılmadı.
+- `artifacts/chrome.png` ve `artifacts/chrome-board.png` görsel olarak incelendi. Yeni Trello capabilities ayarları ve iki gerçek kullanıcıyla rozet/panel ayrımı canlı ortamda ayrıca doğrulanmalıdır; yerel SDK taklidi sunucunun yetkilendirmesini kanıtlamaz.
+
 Tarih: 18 Kasım 2026
 
 ## 19 Kasım 2026 — Anahtarsız kopyalama
