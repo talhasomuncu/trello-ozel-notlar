@@ -49,7 +49,9 @@ Bu sürüm ayrı API anahtarı, OAuth akışı, sunucu veya veritabanı gerektir
 
 ### Not ve checklisti ekiple paylaşmak
 
-Not ve checklist başlıklarının yanındaki **↗ Kopyala** düğmeleri API anahtarı gerektirmez. Düğme önce mevcut ekrandaki içeriğin (kaydedilmemiş düzenlemeler dahil) önizlemesini açar; **Panoya kopyala** ile metni kopyalayabilirsiniz. Tarayıcı iframe içinde otomatik kopyalamayı engellerse önizleme metni seçilir; **Ctrl+C** kullanın.
+Not ve checklist başlıklarının yanındaki **↗ Kopyala** düğmeleri API anahtarı gerektirmez. Tek tıkla mevcut ekrandaki içerik (kaydedilmemiş düzenlemeler dahil) doğrudan panoya kopyalanır; önizleme açılmaz. Tarayıcı modern pano erişimini engellerse geçici, görünmeyen bir metin alanıyla seçim kopyalama denenir. İki yöntem de başarısızsa başarı mesajı yerine hata gösterilir.
+
+Checklist maddesine metin yazdıktan sonra **Enter**, hemen altına yeni bir boş madde ekler ve odağı oraya taşır. Boş maddede Enter yeni boş satır üretmez; Enter hiçbir zaman formu kaydetmez. Değişiklikler için **Kaydet** kullanın.
 
 - Notu, kartın normal açıklamasını düzenleyerek mevcut açıklamanın sonuna yapıştırıp Trello'da kaydedin.
 - Checklist maddelerini, normal Trello checklistinin madde ekleme alanına yapıştırın. Birden fazla satır için Trello'nun ayrı maddeler oluşturma seçeneğini kullanın. Tamamlanma işaretleri aktarılmaz; boş maddeler atlanır.

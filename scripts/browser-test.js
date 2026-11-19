@@ -137,33 +137,62 @@ async function run(name, binary) {
       $('save').click(); await tick();
       const privateBeforeExport = JSON.stringify(testScope);
       const writesBeforeExport = testWrites.length;
-      $('export-note').click();
-      check(!$('export-panel').hidden, 'Export preview opens');
-      check($('export-preview').value === $('note').value, 'Preview uses current note');
       let clipboardText;
       Object.defineProperty(navigator, 'clipboard', { configurable: true, value: {
         writeText: async text => { clipboardText = text; }
       }});
-      $('copy-export').click(); await tick();
+      $('export-note').click(); await tick();
       check(clipboardText === $('note').value, 'Note copied');
-      check($('export-status').textContent.startsWith('Kopyalandı.'), 'Clipboard success visible');
-      $('close-export').click();
-      check($('export-panel').hidden, 'Preview closes');
-      $('export-checklist').click();
-      check($('export-preview').value === 'Taslağı kontrol et', 'Checklist exports as item text');
-      check($('export-help').textContent.includes('Tamamlanma işaretleri aktarılmaz'), 'Completion limitation visible');
+      check($('export-status').textContent.startsWith('Not kopyalandı.'), 'Clipboard success visible');
+      check(!$('export-panel') && !$('export-preview'), 'No preview exists');
+      $('export-checklist').click(); await tick();
+      check(clipboardText === 'Taslağı kontrol et', 'Checklist copied immediately');
       Object.defineProperty(navigator, 'clipboard', { configurable: true, value: {
         writeText: async () => { throw Error('denied'); }
       }});
-      $('copy-export').click(); await tick();
-      check($('export-status').textContent.includes('Ctrl+C'), 'Manual fallback visible');
-      check($('export-preview').selectionStart === 0 &&
-        $('export-preview').selectionEnd === $('export-preview').value.length, 'Manual fallback selects text');
+      document.execCommand = command => {
+        check(command === 'copy', 'Only copy command used');
+        clipboardText = document.activeElement.value;
+        return true;
+      };
+      $('export-note').focus();
+      $('export-note').click(); await tick();
+      check(clipboardText === $('note').value, 'Selection-copy fallback uses note text');
+      check(document.activeElement === $('export-note'), 'Fallback restores focus');
+      check(!document.querySelector('textarea[aria-hidden]'), 'Temporary copy field removed');
+      document.execCommand = () => false;
+      $('export-note').click(); await tick();
+      check($('export-status').textContent.startsWith('Kopyalanamadı.'), 'Clipboard denial reported honestly');
       check(JSON.stringify(testScope) === privateBeforeExport && testWrites.length === writesBeforeExport,
         'Export does not change stored private data');
-      $('close-export').click();
       check(document.documentElement.scrollWidth <= innerWidth, 'Copy controls fit narrow card');
       return { writes: testWrites.length, status: $('status').textContent };
+    })()`);
+    // Use genuine browser key input so accidental HTML form submission is covered.
+    await evaluate(`document.querySelector('#items input[type=text]').focus()`);
+    await call('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 }, sessionId);
+    await call('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 }, sessionId);
+    assert.equal(await evaluate(`document.querySelectorAll('#items li').length`), 2);
+    assert.equal(await evaluate(`document.activeElement === document.querySelectorAll('#items input[type=text]')[1]`), true);
+    assert.equal(await evaluate(`testWrites.length`), result.writes);
+    // Empty Enter must neither add another blank row nor save the form.
+    await call('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 }, sessionId);
+    await call('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 }, sessionId);
+    assert.equal(await evaluate(`document.querySelectorAll('#items li').length`), 2);
+    assert.equal(await evaluate(`testWrites.length`), result.writes);
+    await evaluate(`(() => {
+      const inputs = document.querySelectorAll('#items input[type=text]');
+      inputs[1].value = 'Sonraki iş'; inputs[1].dispatchEvent(new Event('input'));
+      inputs[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', cancelable: true }));
+      if (document.querySelectorAll('#items input[type=text]')[2].value !== 'Sonraki iş') throw Error('Enter must insert after current row');
+      const middle = document.querySelectorAll('#items input[type=text]')[1];
+      middle.value = 'Yeni madde'; middle.dispatchEvent(new Event('input'));
+      middle.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', repeat: true, cancelable: true }));
+      middle.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', isComposing: true, cancelable: true }));
+      if (document.querySelectorAll('#items li').length !== 3) throw Error('Repeat/IME should not insert');
+      // Restore the saved example for the screenshot; no writes are needed.
+      document.querySelectorAll('#items .remove')[2].click();
+      document.querySelectorAll('#items .remove')[1].click();
     })()`);
     const screenshot = await call('Page.captureScreenshot', { format: 'png' }, sessionId);
     const { writeFile } = await import('node:fs/promises');

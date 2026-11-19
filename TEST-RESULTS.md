@@ -4,6 +4,8 @@ Tarih: 18 Kasım 2026
 
 ## 19 Kasım 2026 — Anahtarsız kopyalama
 
+Son güncelleme: önizleme kaldırıldı. Chrome ve Edge'de doğrudan kopyalama, pano izni reddinde görünmeyen seçim-kopyalama yöntemi ve her iki yöntemin başarısızlığı kontrol edildi. Gerçek Enter tuş girdisiyle yeni checklist satırı, odak taşıma, boş satırda Enter ve formun yanlışlıkla kaydedilmemesi sınandı. Orta satıra ekleme, basılı tuş tekrarı ve IME durumları da kontrol edildi. Önizlemeye ilişkin aşağıdaki maddeler önceki sürümün test kaydıdır.
+
 - 10 otomatik test geçti: not metnini koruma, checklist sırası, boş madde atlama, tamamlanma durumuna dokunmama ve pano erişimi reddini ele alma dahil.
 - Chrome ve Edge'de yerel Trello taklidiyle iki düğme, içerik önizlemesi, pano API'si başarı yolu, izin reddinde metni seçerek Ctrl+C yönlendirmesi ve dar kart düzeni doğrulandı.
 - Kopyalama sırasında özel kayıtlara hiçbir ek yazma yapılmadığı doğrulandı. Gerçek işletim sistemi panosu yerine testte pano API'si taklidi kullanıldı.

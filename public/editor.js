@@ -1,5 +1,5 @@
 import { LIMIT, emptyNotes, readNotes, saveNotes, storageSize } from './model.js';
-import { exportText, copyText } from './export.js';
+import { exportText, copyText } from './export.js?v=20261119-directcopy';
 
 const $ = (id) => document.getElementById(id);
 let t;
@@ -56,6 +56,17 @@ function renderItems() {
     input.placeholder = 'Yapılacak bir şey…';
     input.setAttribute('aria-label', 'Madde metni');
     input.addEventListener('input', () => { item.text = input.value; refresh(true); });
+    input.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' || event.isComposing) return;
+      // Enter in a checklist never submits the whole notes form.
+      event.preventDefault();
+      if (event.repeat || !item.text.trim()) return;
+      const index = draft.items.findIndex((other) => other.id === item.id);
+      draft.items.splice(index + 1, 0, { id: crypto.randomUUID(), text: '', done: false });
+      renderItems();
+      refresh(true);
+      $('items').children[index + 1].querySelector('input[type="text"]').focus();
+    });
     checkbox.addEventListener('change', () => {
       item.done = checkbox.checked;
       row.classList.toggle('done', item.done);
@@ -108,37 +119,20 @@ $('add').addEventListener('click', () => {
   $('items').lastElementChild.querySelector('input[type="text"]').focus();
 });
 $('retry').addEventListener('click', load);
-let exportTrigger;
-function showExport(kind) {
-  exportTrigger = kind === 'note' ? $('export-note') : $('export-checklist');
-  $('export-title').textContent = kind === 'note' ? 'Notu kart açıklamasına aktar' : 'Checklist maddelerini aktar';
-  $('export-help').textContent = kind === 'note'
-    ? 'Kopyaladıktan sonra kart açıklamasını düzenleyin ve metni mevcut açıklamanın sonuna yapıştırın. Ardından Trello’da kaydedin.'
-    : 'Kopyaladıktan sonra kartta normal bir checklist açın. Madde ekleme alanına yapıştırın ve Trello’nun ayrı maddeler oluşturma seçeneğini kullanın. Tamamlanma işaretleri aktarılmaz; boş maddeler atlanır.';
-  // Snapshot the current visible draft, including unsaved edits, only after a user click.
-  $('export-preview').value = exportText(draft, kind);
-  $('export-status').textContent = '';
-  $('export-panel').hidden = false;
-  $('export-preview').focus();
-  $('export-preview').select();
-  $('export-panel').scrollIntoView({ block: 'nearest' });
+async function copyExport(kind) {
+  const text = exportText(draft, kind);
+  if (!loaded || saving || !text.trim()) return;
+  const copied = await copyText(text);
+  $('export-status').textContent = copied
+    ? (kind === 'note'
+      ? 'Not kopyalandı. Kart açıklamasına yapıştırabilirsiniz.'
+      : 'Checklist kopyalandı. Trello checklistine yapıştırabilirsiniz; tamamlanma işaretleri aktarılmaz.')
+    : 'Kopyalanamadı. Tarayıcınızın pano erişim iznini kontrol edip yeniden deneyin.';
+  $('export-status').classList.toggle('error', !copied);
   fitSection();
 }
-$('export-note').addEventListener('click', () => showExport('note'));
-$('export-checklist').addEventListener('click', () => showExport('checklist'));
-$('copy-export').addEventListener('click', async () => {
-  const copied = await copyText($('export-preview').value);
-  $('export-status').textContent = copied
-    ? 'Kopyalandı. Şimdi Trello’daki ilgili alana yapıştırabilirsiniz.'
-    : 'Tarayıcı otomatik kopyalamaya izin vermedi. Seçili metni Ctrl+C ile kopyalayın.';
-  if (!copied) { $('export-preview').focus(); $('export-preview').select(); }
-  fitSection();
-});
-$('close-export').addEventListener('click', () => {
-  $('export-panel').hidden = true;
-  exportTrigger?.focus();
-  fitSection();
-});
+$('export-note').addEventListener('click', () => copyExport('note'));
+$('export-checklist').addEventListener('click', () => copyExport('checklist'));
 $('editor').addEventListener('submit', async (event) => {
   event.preventDefault();
   if ($('save').disabled) return;
